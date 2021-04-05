@@ -55,6 +55,3 @@ def getTags(track, artist, numTags=1):
 
     #Return
     return tags
-
-
-#print(getTags("Dreams","Fleetwood Mac", 5)) EXAMPLE
