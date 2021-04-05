@@ -1,10 +1,13 @@
 import requests
 import xml.etree.ElementTree as ET 
 import os
+from dotenv import load_dotenv
 
 
 fmUrl = "http://ws.audioscrobbler.com/2.0/?" #lastfm url
 mbUrl = "https://musicbrainz.org/ws/2/" #musicbrainz url (currently unused)
+
+load_dotenv()
 key = os.environ.get('LASTFMKEY')
 
 
@@ -16,11 +19,12 @@ def getTags(track, artist, numTags=1):
     root = ET.fromstring(response.text)
     tags = []
     i = 0
-    for item in root.findall('./track/toptags/tag/name'): 
-        tags.append(item.text)
-        i = i + 1
-        if i >= numTags:
-            break
+    for item in root.findall('./track/toptags/tag/name'):
+        if not item.text in tags: 
+            tags.append(item.text)
+            i = i + 1
+            if i >= numTags:
+                break
 
     #If we have enough from the track, return now
     if (len(tags) == numTags):
@@ -33,10 +37,11 @@ def getTags(track, artist, numTags=1):
         response = requests.request("GET", fmUrl, headers=headers, params=querystring)
         root = ET.fromstring(response.text)
         for item in root.findall('./album/toptags/tag/name'): 
-            tags.append(item.text)
-            i = i + 1
-            if i >= numTags:
-                break
+            if not item.text in tags:
+                tags.append(item.text)
+                i = i + 1
+                if i >= numTags:
+                    break
     
     #If we have enough from the album, return now
     if (len(tags) == numTags):
@@ -47,11 +52,15 @@ def getTags(track, artist, numTags=1):
     response = requests.request("GET", fmUrl, headers=headers, params=querystring)
     root = ET.fromstring(response.text)
     #print(response.text)
-    for item in root.findall('./toptags/tag/name'): 
-        tags.append(item.text)
-        i = i + 1
-        if i >= numTags:
-            break
+    for item in root.findall('./toptags/tag/name'):
+        if not item.text in tags: 
+            tags.append(item.text)
+            i = i + 1
+            if i >= numTags:
+                break
 
     #Return
     return tags
+
+
+#print(getTags("色の無い水槽","tricot", 5)) EXAMPLE
